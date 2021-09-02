@@ -250,6 +250,20 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
   return pvt_get_int32(b);
 }
 
+/**
+ * Get an int32 from the buffer at pos without changing read_position
+ */
+VALUE rb_bson_byte_buffer_get_int32_at(VALUE self, VALUE pos)
+{
+  byte_buffer_t *b;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  int32_t i32;
+
+  memcpy(&i32, b->b_ptr + NUM2INT(pos), 4);
+  return INT2NUM(BSON_UINT32_FROM_LE(i32));
+}
+
 VALUE pvt_get_int32(byte_buffer_t *b)
 {
   int32_t i32;

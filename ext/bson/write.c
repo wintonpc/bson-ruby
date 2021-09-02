@@ -126,10 +126,34 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
   return self;
 }
 
+VALUE rb_bson_byte_buffer_put_bytes_from(VALUE self, VALUE buffer2, VALUE start_pos, VALUE num_bytes)
+{
+  byte_buffer_t *b;
+  byte_buffer_t *b2;
+  size_t start;
+  size_t length;
+
+  if (!RB_TYPE_P(start_pos, T_FIXNUM) || !RB_TYPE_P(num_bytes, T_FIXNUM))
+    rb_raise(rb_eArgError, "Invalid input");
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  TypedData_Get_Struct(buffer2, byte_buffer_t, &rb_byte_buffer_data_type, b2);
+  ENSURE_BSON_WRITE(b, length);
+  start = NUM2INT(start_pos);
+  length = NUM2INT(num_bytes);
+  if (start + length > b2->write_position)
+    rb_raise(rb_eArgError, "Tried to read %ld bytes but only %ld are available.", length,
+             b2->write_position - start);
+
+  memcpy(WRITE_PTR(b), b2->b_ptr + start, length);
+  b->write_position += length;
+  return self;
+}
+
 /* write the byte denoting the BSON type for the passed object */
 void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
   char type_byte;
-  
+
   switch (TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:
@@ -169,7 +193,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
       break;
     }
   }
-  
+
   pvt_put_byte(b, type_byte);
 }
 
@@ -368,6 +392,18 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval
   }
 
   pvt_replace_int32(b, _position, NUM2LONG(newval));
+
+  return self;
+}
+
+VALUE rb_bson_byte_buffer_set_int32(VALUE self, VALUE position, VALUE newval)
+{
+  byte_buffer_t *b;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+
+  const int32_t i32 = BSON_UINT32_TO_LE(NUM2INT(newval));
+  memcpy(b->b_ptr + NUM2LONG(position), &i32, 4);
 
   return self;
 }

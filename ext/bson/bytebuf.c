@@ -99,6 +99,16 @@ VALUE rb_bson_byte_buffer_read_position(VALUE self)
 }
 
 /* The docstring is in init.c. */
+VALUE rb_bson_byte_buffer_set_read_position(VALUE self, VALUE newpos)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  b->read_position = NUM2INT(newpos);
+
+  return self;
+}
+
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_rewind(VALUE self)
 {
   byte_buffer_t *b;

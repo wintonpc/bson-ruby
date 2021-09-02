@@ -75,6 +75,7 @@ void Init_bson_native()
    * Returns the read position in the buffer.
    */
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
+  rb_define_method(rb_byte_buffer_class, "read_position=", rb_bson_byte_buffer_set_read_position, 1);
 
   rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
   rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
@@ -107,7 +108,8 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
 
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
-  
+  rb_define_method(rb_byte_buffer_class, "get_int32_at", rb_bson_byte_buffer_get_int32_at, 1);
+
   /*
    * call-seq:
    *   buffer.get_uint32(buffer) -> Fixnum
@@ -153,6 +155,18 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
+
+  /*
+   * call-seq:
+   *   buffer.put_bytes_from(buffer2, start_pos, num_bytes) -> ByteBuffer
+   *
+   * Writes up to num_bytes from buffer2 starting at start_pos to the byte buffer, without
+   * changing buffer2's read_position.
+   * buffer and buffer2 may be the same object.
+   *
+   * Returns the modified +self+.
+   */
+  rb_define_method(rb_byte_buffer_class, "put_bytes_from", rb_bson_byte_buffer_put_bytes_from, 3);
 
   /*
    * call-seq:
@@ -310,6 +324,18 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
+
+  /*
+   * call-seq:
+   *   buffer.set_int32(position, fixnum) -> ByteBuffer
+   *
+   * Like replace_int32, but offset is relative to the beginning of the buffer rather than read_position.
+   *
+   * Does not validate arguments!
+   *
+   * Returns the modified +self+.
+   */
+  rb_define_method(rb_byte_buffer_class, "set_int32", rb_bson_byte_buffer_set_int32, 2);
 
   /*
    * call-seq:
