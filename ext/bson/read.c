@@ -28,7 +28,7 @@ static VALUE pvt_get_string(byte_buffer_t *b, const char *data_type);
 static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
-static void pvt_skip_cstring(byte_buffer_t *b);
+//static void pvt_skip_cstring(byte_buffer_t *b);
 
 void pvt_raise_decode_error(volatile VALUE msg) {
   VALUE klass = pvt_const_get_3("BSON", "Error", "BSONDecodeError");
@@ -231,13 +231,13 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 /**
  * Reads but does not return a cstring from the buffer.
  */
-void pvt_skip_cstring(byte_buffer_t *b)
-{
-  int length;
-  length = (int)strlen(READ_PTR(b));
-  ENSURE_BSON_READ(b, length);
-  b->read_position += length + 1;
-}
+/* void pvt_skip_cstring(byte_buffer_t *b) */
+/* { */
+/*   int length; */
+/*   length = (int)strlen(READ_PTR(b)); */
+/*   ENSURE_BSON_READ(b, length); */
+/*   b->read_position += length + 1; */
+/* } */
 
 /**
  * Get a int32 from the buffer.
@@ -256,9 +256,9 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
 VALUE rb_bson_byte_buffer_get_int32_at(VALUE self, VALUE pos)
 {
   byte_buffer_t *b;
+  int32_t i32;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  int32_t i32;
 
   memcpy(&i32, b->b_ptr + NUM2INT(pos), 4);
   return INT2NUM(BSON_UINT32_FROM_LE(i32));
@@ -412,7 +412,7 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
 
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
-    pvt_skip_cstring(b);
+    //pvt_skip_cstring(b);
     rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);

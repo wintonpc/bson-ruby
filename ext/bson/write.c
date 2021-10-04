@@ -131,7 +131,7 @@ VALUE rb_bson_byte_buffer_put_bytes_from(VALUE self, VALUE buffer2, VALUE start_
   byte_buffer_t *b;
   byte_buffer_t *b2;
   size_t start;
-  size_t length;
+  size_t length = NUM2INT(num_bytes);
 
   if (!RB_TYPE_P(start_pos, T_FIXNUM) || !RB_TYPE_P(num_bytes, T_FIXNUM))
     rb_raise(rb_eArgError, "Invalid input");
@@ -140,7 +140,6 @@ VALUE rb_bson_byte_buffer_put_bytes_from(VALUE self, VALUE buffer2, VALUE start_
   TypedData_Get_Struct(buffer2, byte_buffer_t, &rb_byte_buffer_data_type, b2);
   ENSURE_BSON_WRITE(b, length);
   start = NUM2INT(start_pos);
-  length = NUM2INT(num_bytes);
   if (start + length > b2->write_position)
     rb_raise(rb_eArgError, "Tried to read %ld bytes but only %ld are available.", length,
              b2->write_position - start);
@@ -399,10 +398,10 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval
 VALUE rb_bson_byte_buffer_set_int32(VALUE self, VALUE position, VALUE newval)
 {
   byte_buffer_t *b;
+  const int32_t i32 = BSON_UINT32_TO_LE(NUM2INT(newval));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  const int32_t i32 = BSON_UINT32_TO_LE(NUM2INT(newval));
   memcpy(b->b_ptr + NUM2LONG(position), &i32, 4);
 
   return self;
@@ -702,7 +701,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
 
   for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     pvt_put_type_byte(b, *array_element);
-    pvt_put_array_index(b, index);
+    //pvt_put_array_index(b, index);
     pvt_put_field(b, self, *array_element, validating_keys);
   }
   pvt_put_byte(b, 0);

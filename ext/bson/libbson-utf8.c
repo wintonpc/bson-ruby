@@ -191,6 +191,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
             continue;
          }
          not_shortest_form = true;
+         break;
 
       case 2:
          if ((c >= 0x0080) && (c <= 0x07FF)) {
@@ -203,6 +204,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
             continue;
          }
          not_shortest_form = true;
+         break;
 
       case 3:
          if (((c >= 0x0800) && (c <= 0x0FFF)) ||
@@ -210,6 +212,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
             continue;
          }
          not_shortest_form = true;
+         break;
 
       case 4:
          if (((c >= 0x10000) && (c <= 0x3FFFF)) ||
@@ -218,6 +221,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
             continue;
          }
          not_shortest_form = true;
+         break;
 
       default:
          not_shortest_form = true;
